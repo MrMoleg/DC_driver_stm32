@@ -1,0 +1,5 @@
+../Core/ECUAL/DC_MOTOR/DC_MOTOR.c:17:6:DC_MOTOR_Start	16	static
+../Core/ECUAL/DC_MOTOR/DC_MOTOR.c:43:6:DC_MOTOR_Set_Speed	16	static
+../Core/ECUAL/DC_MOTOR/DC_MOTOR.c:50:6:DC_MOTOR_Set_Dir	16	static
+../Core/ECUAL/DC_MOTOR/DC_MOTOR.c:67:6:DC_MOTOR_Stop	16	static
+../Core/ECUAL/DC_MOTOR/DC_MOTOR.c:89:10:DC_MOTOR_Get_MaxFreq	24	static
