@@ -52,6 +52,9 @@ TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
 #define DC_MOTOR1    0
+#define V_OFF 0
+#define AV 20
+#define R_SENSE 13
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,7 +72,13 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+double current_value(uint16_t voltage)
+{
+	double current;
+	voltage = (voltage*3.3)/4096;
+	current = (voltage-V_OFF)/(AV*R_SENSE*0.001);
+	return current;
+}
 /* USER CODE END 0 */
 
 /**
@@ -78,6 +87,8 @@ static void MX_TIM2_Init(void);
   */
 int main(void)
 {
+
+	motor_parameters motor1;
 
   /* USER CODE BEGIN 1 */
 
@@ -113,11 +124,13 @@ int main(void)
   HAL_GPIO_WritePin(LED_G_GPIO_Port, LED_G_Pin, 0);
   HAL_GPIO_WritePin(LED_B_GPIO_Port, LED_B_Pin, 0);
 
-  uint8_t dir = DIR_CCW;
-  uint16_t speed =0;
-  volatile static uint16_t current_value;
+
+
+
+  volatile static uint16_t voltage_value;
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)current_value, 1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)&voltage_value, 1);
+  DC_MOTOR_Init(DC_MOTOR1, &motor1);
 
   //DC_MOTOR_Start(DC_MOTOR1, &htim2, DIR_CCW, 0);
   //DC_MOTOR_Set_Speed(DC_MOTOR1, 500);
@@ -131,30 +144,30 @@ int main(void)
 
   while (1)
   {
-	  DC_MOTOR_Set_Dir(DC_MOTOR1, &htim2, dir);
-	  DC_MOTOR_Set_Speed(DC_MOTOR1, speed);
+	  DC_MOTOR_Set_Dir(DC_MOTOR1, &htim2, &motor1);
+	  DC_MOTOR_Set_Speed(DC_MOTOR1, &motor1);
 
 
-	  while(speed < 1022)
+	  while(motor1.speed < 1022)
 	          {
-	              DC_MOTOR_Set_Speed(DC_MOTOR1, speed);
-	              speed += 1;
+	              DC_MOTOR_Set_Speed(DC_MOTOR1, &motor1);
+	              motor1.speed += 1;
 	              HAL_Delay(1);
 	          }
-	  while(speed > 100)
+	  while(motor1.speed > 100)
 	  	  	  {
-		  DC_MOTOR_Set_Speed(DC_MOTOR1, speed);
-		  speed -= 1;
+		  DC_MOTOR_Set_Speed(DC_MOTOR1, &motor1);
+		  motor1.speed -= 1;
 	      HAL_Delay(1);
 	          }
 
 
-	 if(dir == DIR_CW){
-		 dir = DIR_CCW;
-		 DC_MOTOR_Stop(DC_MOTOR1, &htim2, BREAK);
-	 }else if(dir==DIR_CCW){
-		 dir = DIR_CW;
-		 DC_MOTOR_Stop(DC_MOTOR1, &htim2, COAST);
+	 if(motor1.dir == DIR_CW){
+		 motor1.dir = DIR_CCW;
+		 DC_MOTOR_Stop(DC_MOTOR1, &htim2, &motor1);
+	 }else if(motor1.dir==DIR_CCW){
+		 motor1.dir = DIR_CW;
+		 DC_MOTOR_Stop(DC_MOTOR1, &htim2, &motor1);
 	 }
 	// DC_MOTOR_Set_Dir(DC_MOTOR1, &htim2, dir);
 	 HAL_Delay(2000);
@@ -246,7 +259,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc1.Init.DMAContinuousRequests = ENABLE;
-  hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+  hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
@@ -265,7 +278,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_15;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_2CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_640CYCLES_5;
   sConfig.SingleDiff = ADC_SINGLE_ENDED;
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;

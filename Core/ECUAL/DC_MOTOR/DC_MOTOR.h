@@ -47,14 +47,20 @@ typedef struct
 
 }DC_MOTOR_CfgType;
 
+typedef struct {
+	  uint8_t dir;
+	  uint16_t speed;
+	  uint8_t stop_mode;
+  }motor_parameters;
+
 
 /*-----[ Prototypes For All Functions ]-----*/
 
 
-void DC_MOTOR_Start(uint8_t au8_MOTOR_Instance, TIM_HandleTypeDef* htim, uint8_t au8_DIR, uint16_t au16_SPEED);
-void DC_MOTOR_Set_Speed(uint8_t au8_MOTOR_Instance, uint16_t au16_SPEED);
-void DC_MOTOR_Set_Dir(uint8_t au8_MOTOR_Instance, TIM_HandleTypeDef* htim, uint8_t au8_DIR);
-void DC_MOTOR_Stop(uint8_t au8_MOTOR_Instance, TIM_HandleTypeDef* htim, uint8_t au8_STOP_MODE);
+void DC_MOTOR_Init(uint8_t au8_MOTOR_Instance, motor_parameters *motor);
+void DC_MOTOR_Set_Speed(uint8_t au8_MOTOR_Instance, motor_parameters *motor);
+void DC_MOTOR_Set_Dir(uint8_t au8_MOTOR_Instance,  TIM_HandleTypeDef *htim, motor_parameters *motor);
+void DC_MOTOR_Stop(uint8_t au8_MOTOR_Instance,  TIM_HandleTypeDef *htim, motor_parameters *motor);
 uint32_t DC_MOTOR_Get_MaxFreq(uint8_t au8_MOTOR_Instance);
 
 

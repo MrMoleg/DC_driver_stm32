@@ -65,7 +65,7 @@ main-build: DC_driver.elf secondary-outputs
 
 # Tool invocations
 DC_driver.elf DC_driver.map: $(OBJS) $(USER_OBJS) C:\Users\moleg\STM32CubeIDE\workspace_1.14.0\DC_driver\STM32G431CBTX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "DC_driver.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\moleg\STM32CubeIDE\workspace_1.14.0\DC_driver\STM32G431CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DC_driver.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "DC_driver.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\moleg\STM32CubeIDE\workspace_1.14.0\DC_driver\STM32G431CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="DC_driver.map" -Wl,--gc-sections -static -u _scanf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
